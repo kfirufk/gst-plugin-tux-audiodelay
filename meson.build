@@ -1,5 +1,4 @@
-project('gst-plugin-tux-audiodelay', 'cpp', version : '1.19.0.1', license : 'LGPL',
-        default_options : ['cpp_std=c++23']
+project('gst-plugin-tux-audiodelay', 'c', version : '1.19.0.1', license : 'LGPL',
 )
 
 plugins_install_dir = join_paths(get_option('libdir'), 'gstreamer-1.0')
@@ -13,7 +12,7 @@ gst_dep = dependency('gstreamer-1.0', version : '>=1.19',
 gstbase_dep = dependency('gstreamer-base-1.0', version : '>=1.19',
   fallback : ['gstreamer', 'gst_base_dep'])
 
-plugin_cpp_args = ['-DHAVE_CONFIG_H']
+plugin_c_args = ['-DHAVE_CONFIG_H']
 
 cdata = configuration_data()
 cdata.set_quoted('PACKAGE_VERSION', gst_version)
@@ -30,12 +29,12 @@ gstaudio_dep = dependency('gstreamer-audio-1.0',
 # Plugin 1
 # The tuxaudiodelay Plugin
  gsttuxaudiodelay_sources = [
-  'src/gsttuxaudiodelay.cpp',
+  'src/gsttuxaudiodelay.c',
   ]
 
 gsttuxaudiodelayexample = library('gsttuxaudiodelay',
   gsttuxaudiodelay_sources,
-  cpp_args: plugin_cpp_args,
+  c_args: plugin_c_args,
   dependencies : [gst_dep, gstbase_dep],
   install : true,
   install_dir : plugins_install_dir,

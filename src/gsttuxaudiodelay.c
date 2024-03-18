@@ -163,7 +163,7 @@ gst_tux_audio_delay_init (GstTuxAudioDelay * filter)
   GST_PAD_SET_PROXY_CAPS (filter->srcpad);
   gst_element_add_pad (GST_ELEMENT (filter), filter->srcpad);
 
-  filter->isFirstElement = true;
+  filter->isFirstElement = TRUE;
   filter->delay_ms=0;
     filter->totalBufferDuration=0;
     filter->bufferQueue = g_queue_new();
@@ -242,10 +242,10 @@ gst_tux_audio_delay_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
 {
     GstTuxAudioDelay *filter = GST_TUXAUDIODELAY (parent);
 
-    bool isValidMetadata = false;
+    gboolean isValidMetadata = FALSE;
     // Create silent buffer if buffer duration is valid
     if (GST_BUFFER_PTS_IS_VALID(buf) && GST_BUFFER_DURATION_IS_VALID(buf)) {
-        isValidMetadata= true;
+        isValidMetadata= TRUE;
         filter->latestBufferDuration = GST_BUFFER_DURATION(buf);
         GST_DEBUG_OBJECT(filter,"valid metadata!");
     } else {
@@ -254,11 +254,11 @@ gst_tux_audio_delay_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
             GST_ERROR_OBJECT(filter,"got first packet without valid metadata!");
         }
     }
-        filter->isFirstElement=false;
+        filter->isFirstElement=FALSE;
         const GstClockTime duration_ms = filter->latestBufferDuration / GST_MSECOND;
         GST_DEBUG_OBJECT(filter,"Buffer duration: %" G_GUINT64_FORMAT " ms", duration_ms);
         // Store buffer to queue
-        const auto element = g_new(QueueElement, 1);
+        QueueElement* element = g_new(QueueElement, 1);
         element->time = filter->latestBufferDuration;
         element->buffer = gst_buffer_ref(buf);
         g_queue_push_tail(filter->bufferQueue, element);
@@ -269,8 +269,8 @@ gst_tux_audio_delay_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
         while (filter->totalBufferDuration > filter->delay_ms * GST_MSECOND) {
             GST_DEBUG_OBJECT(filter,"this happend if buffer was lowered in real time!");
             // Peek at the last element in the queue (equivalent to back() in std::list)
-
-            if (auto last_element = static_cast<QueueElement *>(g_queue_peek_tail(filter->bufferQueue)); last_element != nullptr) {
+            QueueElement *last_element = (QueueElement*) g_queue_peek_tail(filter->bufferQueue);
+            if (last_element != NULL) {
                 // Dereference the buffer
                 gst_buffer_unref(last_element->buffer);
 
@@ -289,7 +289,7 @@ gst_tux_audio_delay_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
         if (filter->totalBufferDuration < filter->delay_ms * GST_MSECOND) {
             GST_DEBUG_OBJECT(filter,"playing silent buffer");
             const guint bufferSize = gst_buffer_get_size(buf);
-            const auto silent_buffer = gst_buffer_new_and_alloc(bufferSize);
+            GstBuffer *silent_buffer = gst_buffer_new_and_alloc(bufferSize);
                 gst_buffer_memset (silent_buffer, 0, 0, bufferSize);
                 if (isValidMetadata) {
                     gst_buffer_copy_into(silent_buffer, buf, GST_BUFFER_COPY_METADATA, 0, bufferSize);
@@ -298,8 +298,8 @@ gst_tux_audio_delay_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
             return gst_pad_push(filter->srcpad, silent_buffer);
         } else {
             // Peek at the first element in the queue (equivalent to front() in std::list)
-
-            if (const auto first_element = static_cast<QueueElement*>(g_queue_peek_head(filter->bufferQueue)); first_element != nullptr) {
+            QueueElement* first_element = (QueueElement*) g_queue_peek_head(filter->bufferQueue);
+            if (first_element != NULL) {
                 GST_DEBUG_OBJECT(filter,"playing from buffer!");
                 const GstClockTime delay_time = filter->delay_ms * GST_MSECOND;
                 GST_BUFFER_PTS(first_element->buffer) += delay_time;
