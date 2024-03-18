@@ -2,7 +2,7 @@
 
 ## Note
 
-the plugin tested properly on macos with osxaudiosrc but not on linux with pipewiresrc, the code is currently broken while trying to resolve this issue.
+the plugin tested properly on macos with osxaudiosrc and on linux using autoaudiosrc, it seems that there is a problem with pipewiresrc, it doesn't provide metadata after the first packet and does not allow me to store the buffer, still need to understand what's going on there.
 
 
 ## Description

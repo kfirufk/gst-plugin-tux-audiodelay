@@ -61,11 +61,9 @@ struct _GstTuxAudioDelay
 
     GstPad *sinkpad, *srcpad;
 
-    GstClockTime latestBufferDuration;
     guint delay_ms;
     GQueue* bufferQueue;
     guint totalBufferDuration;
-    gboolean isFirstElement;
 };
 
 typedef struct {
